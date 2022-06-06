@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ImageController;
 
 /*
+
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
@@ -17,4 +18,6 @@ use App\Http\Controllers\ImageController;
 Route::get('/',[ImageController::class, 'index'])->name('images.index');
 Route::get('/images/{{image}}',[ImageController::class,'show'])->name('images.show');
 Route::get('/images',[ImageController::class, 'create'])->name('images.create');
-Route::put('/images',[ImageController::class, 'store'])->name('images.store');
+Route::post('/images',[ImageController::class, 'store'])->name('images.store');
+Route::get('/images/{image}/edit',[ImageController::class, 'edit'])->name('images.edit');
+Route::post('/images/{image}',[ImageController::class, 'update'])->name('images.update');

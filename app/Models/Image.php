@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Image extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['title','file','dimension','user_id', 'slug'];
+
     public static function makeDirectory(){
         $subfolder = 'images/' . date('Y/m/d');
         Storage::makeDirectory($subfolder);
@@ -19,6 +22,7 @@ class Image extends Model
         [$width, $height] = getimageSize(Storage::path($image));
         return $width . "x" . $height;
     }
+    
     public function scopePublished($query){
       return $query->where('is_published',true);
     }
@@ -28,6 +32,10 @@ class Image extends Model
     }
 
     public function permalink(){
-        return route('images.show', $this->slug);
+        return $this->slug ? route('images.show', $this->slug) : '#';
+    }
+
+    public function route($method, $key = 'id'){
+       return route("images.{$method}", $this->$key);
     }
 }

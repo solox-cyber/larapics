@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Image;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ImageRequest extends FormRequest
@@ -23,9 +24,48 @@ class ImageRequest extends FormRequest
      */
     public function rules()
     {
+
+        if($this->method() == 'PUT'){
+            return [
+                'title' => 'required'
+            ];
+        }
+
         return [
             'file' => 'required | image',
             'title' => 'nullable'
         ];
     }
+
+    public function getData(){
+        $data = $this->validated() + [
+           'user_id' => 1 //$this->user()->id 
+        ];
+
+        if($this->hasFile('file'))
+        {
+           $directory =  Image::makeDirectory();
+
+           $data['file'] = $this->file->store($directory);
+
+           $data['dimension'] = Image::getDimension($data['file']); 
+        }
+
+        if($title = $data['title']){
+           $data['slug'] = $this->getSlug($title);
+        }
+
+        return $data;
+    }
+
+    protected function getSlug($title){
+        $slug = str($title)->slug();
+        $numSlugsFound = Image::where('slug','regexp',"^" . $slug. "(-[0-9])?")->count();
+        if($numSlugsFound > 0){
+            return $slug . "-" . $numSlugsFound + 1;
+        }
+        return $slug;
+    }
 }
+
+
