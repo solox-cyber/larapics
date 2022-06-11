@@ -3,6 +3,7 @@
 namespace App\View\Components;
 
 use Illuminate\View\Component;
+use Illuminate\Support\HtmlString;
 
 class Alert extends Component
 {
@@ -23,15 +24,25 @@ class Alert extends Component
          "info"
      ];
 
+     protected $classes = [
+        'alert'
+     ];
+
     public function __construct($type = "info", $dismissible=false)
     {
-       $this->dismissible = $dismissible;
-        $this->type = $type;
+        $this->type = $type->validType($type);
+        $this->classes[] = "alert-{$this->type}";
+        if($dismissible){
+           $this->classes[] = "alert-dismissible fade show";
+        }
+
+        $this->dismissible = $dismissible;
+       
     }
 
-    public function validType()
+    protected function validType($type)
     {
-     return in_array($this->type, $this->types) ? $this->type : 'info';
+     return in_array($type, $this->types) ? $type : 'info';
     }
 
     /**
@@ -39,6 +50,21 @@ class Alert extends Component
      *
      * @return \Illuminate\Contracts\View\View|\Closure|string
      */
+
+     public function link($text, $target = '#'){
+      return new HtmlString("<a href=\"{$target}\" class=\"alert-link\">{$text}</a>");
+     }
+
+     public function icon($url = null){
+         $this->classes[] = 'd-flex align-items-center';
+        $icon = $url ?? asset("icons/icon-($this->type).svg");
+        return new HtmlString("<img class='me-2' src='{$icon}' />");
+     }
+
+     public function getClasses(){
+      return join(" ", $this->classes);
+     }
+
     public function render()
     {
         return view('components.alert');
