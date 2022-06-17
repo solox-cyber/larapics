@@ -23,5 +23,9 @@
        
        <p class="mb-0">Data has been sent {{$component->link('Undo')}}</p>
     </x-alert>    
+    <x-form action="/images">
+        <input type="text" name="name" id="">
+        <button type="submit">Submit</button>
+    </x-form>
 </body>
 </html>
