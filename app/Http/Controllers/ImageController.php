@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Image;
 use Illuminate\Http\Request;
 use App\Http\Requests\ImageRequest;
+use Illuminate\Support\Facades\Gate;
 
 class ImageController extends Controller
 {
     //
     public function index(){
-       $images = Image::published()->latest()->paginate(15);
+       $images = Image::published()->latest()->paginate(15)->withQueryString();
        return view('image.index', compact('images'));
     }
 
@@ -28,6 +29,8 @@ class ImageController extends Controller
      }
 
      public function edit(Image $image){
+     $this->authorize('update-image', $image);
+
         return view('image.edit', compact('image'));
      }
 
@@ -37,6 +40,9 @@ class ImageController extends Controller
      }
 
      public function destroy(Image $image){
+      if(Gate::denies('delete-image', $image)){
+         abort(403,"Access Denied");
+     }
       $image->delete();
       return to_route('images.index')->with('message',"Image has been removed successfully");
    }

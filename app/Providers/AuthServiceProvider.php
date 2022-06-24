@@ -25,6 +25,18 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        Gate::define('update-image', function(User $user, Image $image){
+           return $user->id === $image->user_id || $user->role === Role::Editor; 
+        });
+
+        Gate::define('delete-image', function(User $user, Image $image){
+            return $user->id === $image->user_id; 
+         });
+
+         Gate::before(function($user, $ability){
+           if($user->role === Role::Admin){
+             return true;
+           }
+         });
     }
 }
