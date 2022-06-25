@@ -9,15 +9,16 @@ use Illuminate\Support\Facades\Gate;
 
 class ImageController extends Controller
 {
+   public function __construct(){
+      $this->middleware(['auth']);
+     $this->authorizeResource(Image::class, 'image');
+   }
     //
     public function index(){
-       $images = Image::published()->latest()->paginate(15)->withQueryString();
+       $images = Image::visibleFor(request()->user())->latest()->paginate(15)->withQueryString();
        return view('image.index', compact('images'));
     }
 
-    public function show(Image $image){
-       return view('image.show', compact('image'));
-    }
 
     public function create(){
         return view('image.create');
@@ -29,20 +30,22 @@ class ImageController extends Controller
      }
 
      public function edit(Image $image){
-     $this->authorize('update', $image);
+      if(request()->user()->cannot('update',$image)){
+       abort(403, "Access denied");
+      }
 
         return view('image.edit', compact('image'));
      }
 
      public function update(Image $image, ImageRequest $request){
-      $this->authorize('update', $image);
+     
 
       $image->update($request->getData());
         return to_route('images.index')->with('message',"Image has been updated successfully");
      }
 
      public function destroy(Image $image){
-     $this->authorize('delete', $image);
+    
       $image->delete();
       return to_route('images.index')->with('message',"Image has been removed successfully");
    }
